@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter App - DOM Manipulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .counter-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .counter-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 4rem;
+            font-weight: bold;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter-display.positive {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+        }
+
+        .counter-display.negative {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn.increment {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn.increment:hover {
+            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn.decrement {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+        }
+
+        .btn.decrement:hover {
+            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.4);
+        }
+
+        .btn.reset {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(252, 182, 159, 0.3);
+        }
+
+        .btn.reset:hover {
+            box-shadow: 0 6px 20px rgba(252, 182, 159, 0.4);
+        }
+
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 480px) {
+            .counter-container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .counter-display {
+                font-size: 3rem;
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="counter-container">
+        <h1>Counter App</h1>
+        
+        <div id="counterDisplay" class="counter-display">0</div>
+        
+        <div class="button-group">
+            <button id="incrementBtn" class="btn increment">+ Increment</button>
+            <button id="decrementBtn" class="btn decrement">- Decrement</button>
+            <button id="resetBtn" class="btn reset">Reset</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label">Total Clicks</span>
+                <span id="totalClicks" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Max Value</span>
+                <span id="maxValue" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Min Value</span>
+                <span id="minValue" class="stat-value">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM element references - demonstrates querySelector usage
+        const counterDisplay = document.getElementById('counterDisplay');
+        const incrementBtn = document.getElementById('incrementBtn');
+        const decrementBtn = document.getElementById('decrementBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const totalClicksDisplay = document.getElementById('totalClicks');
+        const maxValueDisplay = document.getElementById('maxValue');
+        const minValueDisplay = document.getElementById('minValue');
+
+        // Application state
+        let counter = 0;
+        let totalClicks = 0;
+        let maxValue = 0;
+        let minValue = 0;
+
+        // Update counter display and styling
+        function updateDisplay() {
+            // DOM manipulation: Update text content
+            counterDisplay.textContent = counter;
+            
+            // DOM manipulation: Conditional class management
+            counterDisplay.classList.remove('positive', 'negative');
+            if (counter > 0) {
+                counterDisplay.classList.add('positive');
+            } else if (counter < 0) {
+                counterDisplay.classList.add('negative');
+            }
+        }
+
+        // Update statistics display
+        function updateStats() {
+            // DOM manipulation: Update multiple elements
+            totalClicksDisplay.textContent = totalClicks;
+            maxValueDisplay.textContent = maxValue;
+            minValueDisplay.textContent = minValue;
+        }
+
+        // Increment function with DOM updates
+        function increment() {
+            counter++;
+            totalClicks++;
+            
+            // Track maximum value
+            if (counter > maxValue) {
+                maxValue = counter;
+            }
+            
+            updateDisplay();
+            updateStats();
+            
+            // DOM manipulation: Add visual feedback
+            incrementBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                incrementBtn.style.transform = '';
+            }, 150);
+        }
+
+        // Decrement function with DOM updates
+        function decrement() {
+            counter--;
+            totalClicks++;
+            
+            // Track minimum value
+            if (counter < minValue) {
+                minValue = counter;
+            }
+            
+            updateDisplay();
+            updateStats();
+            
+            // DOM manipulation: Add visual feedback
+            decrementBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                decrementBtn.style.transform = '';
+            }, 150);
+        }
+
+        // Reset function with DOM updates
+        function reset() {
+            counter = 0;
+            totalClicks = 0;
+            maxValue = 0;
+            minValue = 0;
+            
+            updateDisplay();
+            updateStats();
+            
+            // DOM manipulation: Add reset animation
+            counterDisplay.style.transform = 'scale(1.1)';
+            counterDisplay.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            
+            setTimeout(() => {
+                counterDisplay.style.transform = '';
+            }, 200);
+        }
+
+        // Event listeners - demonstrates event handling
+        incrementBtn.addEventListener('click', increment);
+        decrementBtn.addEventListener('click', decrement);
+        resetBtn.addEventListener('click', reset);
+
+        // Keyboard support - demonstrates advanced event handling
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                case '+':
+                    event.preventDefault();
+                    increment();
+                    // DOM manipulation: Visual feedback for keyboard usage
+                    incrementBtn.classList.add('active');
+                    setTimeout(() => incrementBtn.classList.remove('active'), 150);
+                    break;
+                case 'ArrowDown':
+                case '-':
+                    event.preventDefault();
+                    decrement();
+                    decrementBtn.classList.add('active');
+                    setTimeout(() => decrementBtn.classList.remove('active'), 150);
+                    break;
+                case 'Escape':
+                case 'r':
+                case 'R':
+                    event.preventDefault();
+                    reset();
+                    resetBtn.classList.add('active');
+                    setTimeout(() => resetBtn.classList.remove('active'), 150);
+                    break;
+            }
+        });
+
+        // Initialize display on page load
+        updateDisplay();
+        updateStats();
+
+        // Add some fun interactions
+        counterDisplay.addEventListener('click', function() {
+            // DOM manipulation: Add click effect to display
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 100);
+        });
+
+        // Demonstrate dynamic styling based on value ranges
+        function updateDisplayStyling() {
+            const displayEl = counterDisplay;
+            
+            if (counter === 0) {
+                displayEl.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            } else if (counter >= 10) {
+                displayEl.style.background = 'linear-gradient(135deg, #f093fb, #f5576c)';
+            } else if (counter <= -10) {
+                displayEl.style.background = 'linear-gradient(135deg, #4facfe, #00f2fe)';
+            }
+        }
+
+        // Enhanced update display function
+        const originalUpdateDisplay = updateDisplay;
+        updateDisplay = function() {
+            originalUpdateDisplay();
+            updateDisplayStyling();
+        };
+
+        console.log('Counter App loaded! Try using keyboard shortcuts:');
+        console.log('↑ or + : Increment');
+        console.log('↓ or - : Decrement');
+        console.log('Esc or R : Reset');
+    </script>
+</body>
+</html>
